@@ -1,0 +1,36 @@
+import maya.cmds as cmds
+
+def key_visibility_on_frames():
+    def key_selected_objects(odd_frames):
+        selected_objects = cmds.ls(selection=True)
+        if not selected_objects:
+            cmds.warning("No objects selected. Please select the objects you want to key visibility for.")
+            return
+
+        start_frame = int(cmds.playbackOptions(query=True, minTime=True))
+        end_frame = int(cmds.playbackOptions(query=True, maxTime=True))
+
+        for frame in range(start_frame, end_frame + 1):
+            for obj in selected_objects:
+                visibility_value = 1 if (frame % 2 == 1) == odd_frames else 0
+                cmds.setKeyframe(obj, attribute='visibility', t=frame, value=visibility_value)
+
+    def create_ui():
+        if cmds.window("keyVisibilityUI", exists=True):
+            cmds.deleteUI("keyVisibilityUI")
+
+        window = cmds.window("keyVisibilityUI", title="Key Visibility on Frames")
+        cmds.columnLayout(adjustableColumn=True)
+        cmds.text(label="Select the keying mode:")
+        cmds.radioButtonGrp("keyModeRadio", labelArray2=["Odd Frames", "Even Frames"], numberOfRadioButtons=2)
+        cmds.button(label="Key Visibility", command=perform_keying)
+        cmds.showWindow(window)
+
+    def perform_keying(*args):
+        key_mode = cmds.radioButtonGrp("keyModeRadio", query=True, select=True)
+        odd_frames = key_mode == 1
+        key_selected_objects(odd_frames)
+
+    create_ui()
+
+key_visibility_on_frames()
