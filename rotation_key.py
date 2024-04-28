@@ -19,24 +19,24 @@ class RotateAndKeyframeUI:
         
         cmds.showWindow(self.window_name)
         
-def rotate_and_keyframe(self, *args):
-    degrees = cmds.intField(self.degrees_field, query=True, value=True)
-    frames = cmds.intField(self.frames_field, query=True, value=True)
+    def rotate_and_keyframe(self, *args):
+        degrees = cmds.intField(self.degrees_field, query=True, value=True)
+        frames = cmds.intField(self.frames_field, query=True, value=True)
+        
+        selected_objects = cmds.ls(selection=True)
+        if not selected_objects:
+            cmds.warning("Please select an object to rotate.")
+            return
+        
+        for obj in selected_objects:
+            current_rotation = cmds.getAttr(obj + ".rotateY")
+            end_frame = int(cmds.playbackOptions(q=True, max=True))
+            for frame in range(1, end_frame + 1, frames):
+                cmds.setKeyframe(obj, attribute="rotateY", t=frame, value=current_rotation)
+                current_rotation += degrees
     
-    selected_objects = cmds.ls(selection=True)
-    if not selected_objects:
-        cmds.warning("Please select an object to rotate.")
-        return
-    
-    for obj in selected_objects:
-        current_rotation = cmds.getAttr(obj + ".rotateY")
-        end_frame = int(cmds.playbackOptions(q=True, max=True))
-        for frame in range(1, end_frame + 1, frames):
-            cmds.setKeyframe(obj, attribute="rotateY", t=frame, value=current_rotation)
-            current_rotation += degrees
-
-            # Switch to step tangents
-            cmds.keyTangent(obj, attribute="rotateY", itt="step", ott="step")
+                # Switch to step tangents
+                cmds.keyTangent(obj, attribute="rotateY", itt="step", ott="step")
 
 
 ui = RotateAndKeyframeUI()
