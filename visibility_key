@@ -1,7 +1,7 @@
 import maya.cmds as cmds
 
-def key_visibility_on_frames():
-    def key_selected_objects(odd_frames):
+def key_visibility_on_nth_frame():
+    def key_selected_objects(nth_frame):
         selected_objects = cmds.ls(selection=True)
         if not selected_objects:
             cmds.warning("No objects selected. Please select the objects you want to key visibility for.")
@@ -11,26 +11,28 @@ def key_visibility_on_frames():
         end_frame = int(cmds.playbackOptions(query=True, maxTime=True))
 
         for frame in range(start_frame, end_frame + 1):
-            for obj in selected_objects:
-                visibility_value = 1 if (frame % 2 == 1) == odd_frames else 0
-                cmds.setKeyframe(obj, attribute='visibility', t=frame, value=visibility_value)
+            if frame % nth_frame == 0:
+                for obj in selected_objects:
+                    cmds.setKeyframe(obj, attribute='visibility', t=frame, value=1)
+            else:
+                for obj in selected_objects:
+                    cmds.setKeyframe(obj, attribute='visibility', t=frame, value=0)
 
     def create_ui():
         if cmds.window("keyVisibilityUI", exists=True):
             cmds.deleteUI("keyVisibilityUI")
 
-        window = cmds.window("keyVisibilityUI", title="Key Visibility on Frames")
+        window = cmds.window("keyVisibilityUI", title="Key Visibility on Every nth Frame")
         cmds.columnLayout(adjustableColumn=True)
-        cmds.text(label="Select the keying mode:")
-        cmds.radioButtonGrp("keyModeRadio", labelArray2=["Odd Frames", "Even Frames"], numberOfRadioButtons=2)
+        cmds.text(label="Enter the nth frame interval:")
+        cmds.intField("nthFrameInput", minValue=1, value=3)
         cmds.button(label="Key Visibility", command=perform_keying)
         cmds.showWindow(window)
 
     def perform_keying(*args):
-        key_mode = cmds.radioButtonGrp("keyModeRadio", query=True, select=True)
-        odd_frames = key_mode == 1
-        key_selected_objects(odd_frames)
+        nth_frame = cmds.intField("nthFrameInput", query=True, value=True)
+        key_selected_objects(nth_frame)
 
     create_ui()
 
-key_visibility_on_frames()
+key_visibility_on_nth_frame()
