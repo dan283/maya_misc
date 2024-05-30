@@ -12,8 +12,16 @@ class RotateAndKeyframeUI:
         cmds.columnLayout(adjustableColumn=True)
         
         cmds.text(label="Rotation Settings", align="center")
+        
+        cmds.rowLayout(numberOfColumns=2)
+        cmds.text(label="Degrees: ")
         self.degrees_field = cmds.intField(value=0, minValue=0, width=200)
+        cmds.setParent('..')
+        
+        cmds.rowLayout(numberOfColumns=2)
+        cmds.text(label="Frame Interval: ")
         self.frames_field = cmds.intField(value=1, minValue=1, width=200)
+        cmds.setParent('..')
         
         cmds.button(label="Rotate and Keyframe", command=self.rotate_and_keyframe)
         
@@ -37,7 +45,6 @@ class RotateAndKeyframeUI:
     
                 # Switch to step tangents
                 cmds.keyTangent(obj, attribute="rotateY", itt="step", ott="step")
-
 
 ui = RotateAndKeyframeUI()
 ui.create_window()
